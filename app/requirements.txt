@@ -1,0 +1,4 @@
+pdfplumber
+autogen
+streamlit
+gradio
