@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+pdfplumber
+autogen  # or replace with the actual library name if different
+pydantic

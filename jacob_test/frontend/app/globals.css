@@ -1,0 +1,272 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #0a0a0a; /* Dark background for consistent dark mode */
+  --foreground: #ededed; /* Light text color for dark background */
+  --message-user-bg: #4d79ff; /* Darker blue for user messages in dark mode */
+  --message-agent-bg: #2b2b2b; /* Dark gray for agent messages in dark mode */
+  --input-bg: #333333; /* Dark background for input fields */
+  --input-border: #444444; /* Lighter border for input fields */
+  --button-bg: #0061f2; /* Bright button color */
+  --button-text: #ffffff; /* White button text */
+  --button-hover-bg: #0053d1; /* Darker blue when hovering */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a; /* Ensure dark background in dark mode */
+    --foreground: #ededed; /* Light text color in dark mode */
+    --message-user-bg: #4d79ff; /* Blue user message background */
+    --message-agent-bg: #2b2b2b; /* Darker gray agent message background */
+    --input-bg: #333333; /* Dark input field background */
+    --input-border: #444444; /* Lighter border in dark mode */
+    --button-bg: #0061f2; /* Consistent button color */
+    --button-hover-bg: #0053d1; /* Darker blue button on hover */
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
+  padding: 20px;
+  margin: 0;
+  height: 100vh; /* Ensures the body takes up the full screen */
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 100%; /* Ensure it takes full width */
+  height: 100vh; /* Ensure it takes full height */
+}
+
+.container-home {
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: left;
+  margin: 0 auto;
+  max-width: 60%; /* Ensure it takes full width */
+  height: 100vh; /* Ensure it takes full height */
+}
+
+.form {
+  margin-bottom: 20px;
+}
+
+.input-label {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: 10px;
+}
+
+.input-file, .input-select, .input-text {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  font-size: 16px;
+}
+
+.input-text {
+  width: 85%;
+  margin-right: 10px;
+}
+
+.submit-btn, .send-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.submit-btn:hover, .send-btn:hover {
+  background-color: var(--button-hover-bg);
+}
+
+/* Chat container styling */
+.messages-container {
+  margin-top: 20px;
+  max-width: 800px; /* Sets a maximum width to prevent it from being too wide */
+  width: 100%; /* Makes sure the container takes up the full width */
+  padding: 20px;
+  background-color: var(--background); /* Dark background for chat */
+  border-radius: 10px;
+  border: 1px solid #444444;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-left: auto; /* Centers it horizontally */
+  margin-right: auto; /* Centers it horizontally */
+  overflow-y: auto;
+  height: calc(90vh - 200px); /* Adjust height to take full screen except for header/footer */
+}
+
+.message {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 15px;
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  max-width: 75%;
+}
+
+.message-agent {
+  background-color: var(--message-agent-bg);
+  color: #ededed;
+  margin-left: auto;
+}
+
+.message-user {
+  background-color: var(--message-user-bg);
+  color: #171717;
+  margin-right: auto;
+}
+
+.message strong {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 5px;
+}
+
+@media (max-width: 768px) {
+  .input-text {
+    width: 70%;
+  }
+
+  .messages-container {
+    padding: 10px;
+  }
+
+  .message {
+    max-width: 100%;
+  }
+
+  .send-btn, .submit-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+/* Spinner animation styles */
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #0061f2; /* Blue color for the spinner */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#defacto-description1 {
+  font-style: italic;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+#defacto-description2 {
+  font-weight: bold;
+  font-style: italic;
+  font-size: 20px;
+  margin-bottom: 40px;
+}
+
+#title {
+  text-align: center;
+  font-size: 60px;
+}
+
+#agent-chat {
+  text-align: center; /* Center the heading */
+  font-weight: bold;
+  font-size: 20px; /* Larger font size */
+  margin-top: 10px;
+}
+
+/* Styling for the input area at the bottom */
+/* Center-align the entire form container */
+.input-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Vertically align input and button */
+  margin-top: 20px;
+  width: 100%;
+  max-width: 800px; /* Ensures the form doesn't stretch too wide */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Input field with fixed size */
+.input-text {
+  width: 70%; /* Set fixed width for the input */
+  padding: 12px; /* Add some padding for a better appearance */
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+/* Button with fixed size */
+.send-btn {
+  padding: 12px 20px;
+  border-radius: 8px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+  min-width: 120px; /* Fixed width for the button */
+  text-align: center;
+}
+
+/* Button hover state */
+.send-btn:hover {
+  background-color: var(--button-hover-bg);
+}
+
+/* Optional: Adjust for smaller screens */
+@media (max-width: 768px) {
+  .input-text {
+    width: 60%; /* Adjust input width for smaller screens */
+  }
+
+  .send-btn {
+    width: 100%; /* Ensure button takes full width on small screens */
+    margin-top: 10px;
+  }
+}
