@@ -44,7 +44,7 @@ The judge must remain impartial while facilitating the smooth progression of the
 """
 
 defendant_description="""
-Represents the defendant in the mock trial. 
+Represents the defendant in the mock trial.
 Provides testimony when called to the stand, responds to direct and cross-examination questions, 
 and defends against accusations by presenting their version of events as established in the trial document. 
 The defendant must remain truthful and consistent with the provided case facts while adhering to courtroom protocol.
@@ -64,7 +64,7 @@ The Prosecuting Attorney seeks to achieve a conviction through clear and compell
 """
 
 human_proxy_defense_attorney_description="""
-Acts as the Defense Attorney in a mock trial. 
+Acts as the Defense Attorney in a mock trial. Should be prompted to speak when the defendant is being questioned.
 Responsible for representing the defendant by crafting a defense strategy, challenging the prosecution's case, cross-examining witnesses, and presenting evidence that supports the defendant's innocence or mitigates their liability.
 """
 
@@ -80,4 +80,14 @@ The Prosecuting Attorney seeks to achieve a conviction through clear and compell
 defense_attorney_description="""
 Acts as the Defense Attorney in a mock trial. 
 Responsible for representing the defendant, delivering legal arguments, challenging the prosecution's claims, and advocating for the most favorable outcome for their client through legal defense strategies and courtroom procedure.
+"""
+
+initial_message = f"""
+I will be roleplaying as the {human_proxy_role} in this mock trial. We will begin with the direct examination, where the defendant is already on the stand, and I, as the {human_proxy_role}, will conduct the questioning. However, this simulation will cover the entire court proceeding, including cross-examinations, objections, and any other trial phases.
+
+For context, the following document contains all the necessary details about the case, including background information, procedural context, and evidence:
+
+{pdf_text}
+
+Please ensure that all responses are appropriate for a courtroom setting, align with the role you are assigned, and adhere to the rules of courtroom procedure.
 """
