@@ -5,7 +5,7 @@ import os
 import uuid
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from methods import create_agents, extract_text_from_pdf, parse_agent_names, create_analysis_agents
+from methods import create_agents, extract_text_from_pdf, parse_agent_names, create_analysis_agents, define_transitions
 
 app = FastAPI()
 
@@ -45,9 +45,14 @@ async def initialize_conversation(pdf: UploadFile = File(...), role: str = Form(
     # Create agents
     agents = create_agents(role, pdf_text, llm_config)
 
+    # Define transitions
+    disallowed_transitions = define_transitions(agents, role)
+
     group_chat = GroupChat(
         agents=agents.values(),
         messages=[],
+        allowed_or_disallowed_speaker_transitions=disallowed_transitions,
+        speaker_transitions_type="disallowed",
         max_round=4,
         allow_repeat_speaker=False,
     )
@@ -186,4 +191,4 @@ async def continue_conversation(request: ContinueConversationRequest):
     #     if response['role'] == 'assistant':
     #         index_of_next_message = i + 1
     #         break
-    return {"response": chat_result.chat_history[1:]}
+    return {"response": parse_agent_names(chat_result.chat_history)[1:]}

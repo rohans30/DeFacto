@@ -61,6 +61,21 @@ def create_agents(user_role, pdf_text, llm_config):
 
     return agents
 
+def define_transitions(agents, user_role):
+    disallowed_transitions = {
+        agents["witness_agent"]: [agents["defendant_agent"], agents["witness_agent"]],
+        agents["defendant_agent"]: [agents["witness_agent"], agents["defendant_agent"]],
+        agents["judge_agent"]: [agents["judge_agent"]],
+        agents["human_proxy"]: [agents["human_proxy"]],
+    }
+
+    if user_role == "DA":
+        disallowed_transitions[agents["prosecuting_attorney"]] = [agents["prosecuting_attorney"], agents["human_proxy"]]
+        disallowed_transitions[agents["human_proxy"]] = [agents["prosecuting_attorney"], agents["human_proxy"]]
+    else:
+        disallowed_transitions[agents["defense_attorney"]] = [agents["defense_attorney"], agents["human_proxy"]]
+        disallowed_transitions[agents["human_proxy"]] = [agents["defense_attorney"], agents["human_proxy"]]
+
 # Utility to extract text from a PDF file
 def extract_text_from_pdf(file):
     with pdfplumber.open(file) as pdf:
