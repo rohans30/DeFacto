@@ -89,9 +89,11 @@ I will be roleplaying as the {human_proxy_role} in this mock trial. We will begi
 
 The prosecuting attorney should only speak after the judge has directly given them the floor, and the defense attorney should only speak after the prosecuting attorney has finished their questioning. The witnesses should only speak when directly addressed by the attorneys.
 
+When an attorney says they are finished with questioning, the next speaker should always be the judge. The judge will then decide who has the floor next based on the courtroom procedure.
+
 For context, the following document contains all the necessary details about the case, including background information, procedural context, and evidence:
 
-{pdf_text}
+<context> {pdf_text} </context>
 
 Please ensure that all responses are appropriate for a courtroom setting, align with the role you are assigned, and adhere to the rules of courtroom procedure.
 """
