@@ -3,28 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0a0a; /* Dark background for consistent dark mode */
-  --foreground: #ededed; /* Light text color for dark background */
-  --message-user-bg: #4d79ff; /* Darker blue for user messages in dark mode */
-  --message-agent-bg: #2b2b2b; /* Dark gray for agent messages in dark mode */
-  --input-bg: #333333; /* Dark background for input fields */
-  --input-border: #444444; /* Lighter border for input fields */
-  --button-bg: #0061f2; /* Bright button color */
+  --background: #F2E9E4; /* Dark background for consistent dark mode */
+  --foreground: #0a0a0a; /* Light text color for dark background */
+  --message-user-bg: #adb5bd; /* Darker blue for user messages in dark mode */
+  --message-agent-bg: #343a40; /* Dark gray for agent messages in dark mode */
+  --input-bg: #adb5bd; /* Dark background for input fields */
+  --input-border: #070707; /* Lighter border for input fields */
+  --button-bg: #4A4E69; /* Bright button color */
   --button-text: #ffffff; /* White button text */
-  --button-hover-bg: #0053d1; /* Darker blue when hovering */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a; /* Ensure dark background in dark mode */
-    --foreground: #ededed; /* Light text color in dark mode */
-    --message-user-bg: #4d79ff; /* Blue user message background */
-    --message-agent-bg: #2b2b2b; /* Darker gray agent message background */
-    --input-bg: #333333; /* Dark input field background */
-    --input-border: #444444; /* Lighter border in dark mode */
-    --button-bg: #0061f2; /* Consistent button color */
-    --button-hover-bg: #0053d1; /* Darker blue button on hover */
-  }
+  --button-hover-bg: #22223B; /* Darker blue when hovering */
 }
 
 body {
@@ -55,6 +42,35 @@ h1 {
   height: 100vh; /* Ensure it takes full height */
 }
 
+
+/* Subtitle */
+.subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2em;
+}
+
+/* Option Boxes */
+.optionBox {
+  background-color: #e0e0e0;
+  padding: 1.5em;
+  margin: 1em 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.optionBox h2 {
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+
+.optionBox p {
+  color: #555;
+  margin-bottom: 1em;
+}
+
 .container-home {
   display: flex;
   flex-direction: column;
@@ -72,7 +88,7 @@ h1 {
 .input-label {
   display: block;
   font-size: 18px;
-  font-weight: bold;
+  font-weight:700;
   margin-bottom: 5px;
   margin-top: 10px;
 }
@@ -84,11 +100,14 @@ h1 {
   border: 1px solid var(--input-border);
   background: var(--input-bg);
   font-size: 16px;
+  font-weight: 500;
 }
+
 
 .input-text {
   width: 85%;
   margin-right: 10px;
+  color:black;
 }
 
 .submit-btn, .send-btn {
@@ -109,12 +128,12 @@ h1 {
 /* Chat container styling */
 .messages-container {
   margin-top: 20px;
-  max-width: 800px; /* Sets a maximum width to prevent it from being too wide */
+  max-width: 1100px; /* Sets a maximum width to prevent it from being too wide */
   width: 100%; /* Makes sure the container takes up the full width */
   padding: 20px;
-  background-color: var(--background); /* Dark background for chat */
-  border-radius: 10px;
-  border: 1px solid #444444;
+  background-color: #495057;  /*Dark background for chat */
+  /* border-radius: 10px;
+  border: 1px solid #444444; */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   margin-left: auto; /* Centers it horizontally */
   margin-right: auto; /* Centers it horizontally */
@@ -129,19 +148,19 @@ h1 {
   font-size: 16px;
   line-height: 1.5;
   word-wrap: break-word;
-  max-width: 75%;
+  max-width: 60%;
 }
 
 .message-agent {
   background-color: var(--message-agent-bg);
   color: #ededed;
-  margin-left: auto;
+  margin-right: auto;
 }
 
 .message-user {
   background-color: var(--message-user-bg);
   color: #171717;
-  margin-right: auto;
+  margin-left: auto;
 }
 
 .message strong {
@@ -179,7 +198,7 @@ h1 {
 
 .spinner {
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #0061f2; /* Blue color for the spinner */
+  border-top: 4px solid var(--button-text); /* Blue color for the spinner */
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -204,9 +223,9 @@ h1 {
   margin-bottom: 40px;
 }
 
-#title {
+.title {
   text-align: center;
-  font-size: 60px;
+  font-size: 80px;
 }
 
 #agent-chat {
@@ -229,16 +248,7 @@ h1 {
   margin-right: auto;
 }
 
-/* Input field with fixed size */
-.input-text {
-  width: 70%; /* Set fixed width for the input */
-  padding: 12px; /* Add some padding for a better appearance */
-  border-radius: 8px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  font-size: 16px;
-  margin-right: 10px;
-}
+
 
 /* Button with fixed size */
 .send-btn {

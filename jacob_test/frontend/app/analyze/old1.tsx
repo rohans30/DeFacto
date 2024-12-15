@@ -48,12 +48,6 @@ export default function Chat() {
 
   return (
     <div className="container">
-      <h1 id="title">
-        <Link href="/" passHref>
-          DeFacto
-        </Link>
-      </h1>
-      <h2 id="agent-chat">Agent Chat</h2>
 
       {/* Messages container */}
       <div className="messages-container">
