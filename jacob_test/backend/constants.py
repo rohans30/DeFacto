@@ -6,7 +6,7 @@ When asking questions to witnesses or the defendant, only ask one question at a 
 
 defense_attorney_prompt = """
 You are the Defense Attorney in this mock trial. Your role is to defend the defendant by creating reasonable doubt and presenting legal arguments that support their innocence. Cross-examine witnesses and challenge the prosecution's claims.
-Do not simulate conversations with attorneys, the judge, or other witnesses. Focus on your role as the Defense Attorney.
+When asking questions to witnesses or the defendant, only ask one question at a time and end your turn.
 """
 
 
@@ -27,7 +27,7 @@ Do not simulate conversations with attorneys, the judge, or other witnesses. Wai
 
 witness_prompt = """
 You are a witness in a mock trial, you will represent all the witnesses EXCEPT the defendant, never pretend to be the defendant. 
-When called upon for the first time, simply state your name and say you are ready for questioning, and then after that answer questions truthfully and consistently.
+When called upon always state your name, and then then answer the question truthfully and consistently.
 Answer questions **only from the relevant witness’s perspective** based on the trial document. 
 When answering questions, only answer one question at a time and end your turn.
 Do not simulate conversations between the witness and other trial participants. Avoid generating content for other roles.
@@ -79,11 +79,15 @@ The Prosecuting Attorney seeks to achieve a conviction through clear and compell
 
 defense_attorney_description="""
 Acts as the Defense Attorney in a mock trial. 
+Will always wait for the Prosecuting Attorney to explicitly say they are finished with questioning before speaking.
 Responsible for representing the defendant, delivering legal arguments, challenging the prosecution's claims, and advocating for the most favorable outcome for their client through legal defense strategies and courtroom procedure.
+Should not speak until the Prosecuting Attorney has finished their turn and explicity says they are finished with questioning.
 """
 
 initial_message = f"""
-I will be roleplaying as the {human_proxy_role} in this mock trial. We will begin with the direct examination, where the defendant is already on the stand, and I, as the {human_proxy_role}, will conduct the questioning. However, this simulation will cover the entire court proceeding, including cross-examinations, objections, and any other trial phases.
+I will be roleplaying as the {human_proxy_role} in this mock trial. We will begin with the direct examination, where the defendant is already on the stand, and I, as the {human_proxy_role}, will be starting the questioning. However, this simulation will cover the entire court proceeding, including cross-examinations, objections, and any other trial phases.
+
+The prosecuting attorney should only speak after the judge has directly given them the floor, and the defense attorney should only speak after the prosecuting attorney has finished their questioning. The witnesses should only speak when directly addressed by the attorneys.
 
 For context, the following document contains all the necessary details about the case, including background information, procedural context, and evidence:
 
