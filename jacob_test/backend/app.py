@@ -12,14 +12,14 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # This allows all origins, you can restrict this to your frontend domain for security.
+    allow_origins=["*"],  
     allow_credentials=True,
-    allow_methods=["*"],  # This allows all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # This allows all headers
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
 
-# To hold session data for simplicity (use a database for production!)
+# To hold session data for simplicity
 sessions = {}
 
 
@@ -131,8 +131,6 @@ async def continue_conversation(request: ContinueConversationRequest):
     parsed_history = parse_agent_names(chat_result.chat_history[index_of_next_message:])
     return {"response": parsed_history}
 
-
-##### NEWWWWW
 
 @app.post("/analysis/initialize")
 async def initialize_analysis(pdf: UploadFile = File(...)):

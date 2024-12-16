@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link'; // Import the Link component from next/link
+import Link from 'next/link'; 
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
