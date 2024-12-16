@@ -99,7 +99,7 @@ def parse_agent_names(chat_history):
         elif content['name'] == "defendant_agent":
             new_name = "Defendant"
         elif content['name'] == "legal_analysis_agent":
-            new_name = "Specter Defacto"
+            new_name = "Tutor Donny Defacto"
         elif content['name'] == "feedback_agent":
             new_name = "Tutor Donny Defacto"
         elif content['name'] == 'assistant':

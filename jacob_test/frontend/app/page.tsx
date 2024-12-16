@@ -19,7 +19,7 @@ export default function Home() {
         <h2>Mock Trial Simulation</h2>
         <p>Simulate Comprehensive Legal Scenarios with AI Agents</p>
         <Link href="/simulate">
-          <button className='button'>Start</button>
+          <button className='home-start-button'>Start</button>
         </Link>
       </div>
 
@@ -28,7 +28,7 @@ export default function Home() {
         <h2>Legal Text Analysis</h2>
         <p>Converse with the DeFacto Agent on Readings, Notes, etc.</p>
         <Link href="/analyze">
-          <button className='button'>Start</button>
+          <button className='home-start-button'>Start</button>
         </Link>
       </div>
     </div>

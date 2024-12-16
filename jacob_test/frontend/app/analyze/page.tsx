@@ -5,7 +5,6 @@ import Link from 'next/link'; // Import the Link component from next/link
 
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
-  const [role, setRole] = useState('DA');
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<{ sender: string; content: string }[]>([]);
   const [userMessage, setUserMessage] = useState('');

@@ -150,7 +150,14 @@ async def initialize_analysis(pdf: UploadFile = File(...)):
     analysis_agent = ConversableAgent(
         name="legal_analysis_agent", 
         system_message=f"""
-        You are LegalAnalysisAgent, an AI expert in analyzing legal court proceedings. This is the court proceeding you will be analyzing: {pdf_text} Your primary role is to explain the reasoning behind the behavior, questioning style, and responses of participants in a court transcript, including attorneys, judges, witnesses, and other legal professionals. You should provide insights into the legal strategies, arguments, and tactics used by the participants. You can also provide general legal knowledge and context to help the user understand the legal proceedings better. Your goal is to help the user gain a deeper understanding of the legal aspects of the court transcript. You can also answer questions related to legal concepts, procedures, and strategies. You have access to a wide range of legal knowledge and can provide detailed explanations on legal topics. You should provide accurate, informative, and insightful responses to the user's questions. Please reply in a paragraph format and be as concise as possible with your answers.
+         You are LegalAnalysisAgent, an AI expert in analyzing legal court proceedings and legal notes and information. 
+         This is the information you will be analyzing: <context> {pdf_text} </context> 
+         Your primary role is to explain the legal information in the document and answer all of the user's questions to the best of your ability. 
+         Your goal is to help the user gain a deeper understanding of the legal aspects of the court transcript. 
+         You can also answer questions related to legal concepts, procedures, and strategies. 
+         You have access to a wide range of legal knowledge and can provide detailed explanations on legal topics. 
+         You should provide accurate, informative, and insightful responses to the user's questions. 
+         Please don't respond in markdown, but respond in paragraph format and use newlines when necessary. Be as concise as possible with your answers.
         """,
         llm_config=llm_config, 
     )
@@ -168,7 +175,7 @@ async def initialize_analysis(pdf: UploadFile = File(...)):
 
     chat_result = human_agent.initiate_chat(
         recipient=analysis_agent,
-        message="First, can you summarize the court proceedings and the main legal issues discussed in the transcript?"
+        message="First, summarize the pdf that I uploaded."
     )
 
     # Initialize session
@@ -177,7 +184,7 @@ async def initialize_analysis(pdf: UploadFile = File(...)):
         "human_agent": human_agent,
         "analysis_agent": analysis_agent,
     }
-    print(chat_result)
+    # print(chat_result)
 
     return {"session_id": session_id, "response": parse_agent_names(chat_result.chat_history)[1:]}
 
