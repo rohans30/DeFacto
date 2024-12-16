@@ -208,72 +208,141 @@ async def continue_conversation(request: ContinueConversationRequest):
 
 ### Feedback APIs
 
-@app.post("/feedback/initialize")
-async def provide_feedback(request: ContinueConversationRequest):
+@app.post("/simulation/feedback")
+async def handle_feedback(request: ContinueConversationRequest):
     session = sessions.get(request.session_id)
     if not session:
         return JSONResponse(content={"error": "Session not found."}, status_code=404)
 
-    group_chat_manager = session["group_chat_manager"]
-    conversation_history = session["conversation_history"]
+    # Check if feedback agents are already initialized
+    if "feedback_agent" in session and "human_agent" in session:
+        # Continue feedback logic
+        feedback_agent = session['feedback_agent']
+        human_agent = session['human_agent']
 
-    convo_string = group_chat_manager.messages_to_string(conversation_history)
+        chat_result = human_agent.initiate_chat(
+            recipient=feedback_agent,
+            message=request.user_message,
+            clear_history=False,
+            chat_messages=session['feedback_history']
+        )
 
-    # Initialize Feedback Agent
-    feedback_agent = ConversableAgent(
-        name="feedback_agent", 
-        system_message=f"""
-        You are a legal feedback assistant for a mock trial simulation.
-        Cite specific examples from the user's performance and provide constructive feedback on their courtroom performance, legal arguments, and trial strategy.
-        """,
-        llm_config=session["group_chat_manager"].llm_config,
-    )
+        # Update feedback history
+        session['feedback_history'].extend(chat_result.chat_history)
 
-    human_agent = ConversableAgent(
-        "human_agent",
-        llm_config=False,
-        human_input_mode="NEVER",
-        is_termination_msg=lambda message: True,
-    )
+        # Find latest response index
+        index_of_next_message = 0
+        for i in range(len(chat_result.chat_history) - 1, -1, -1):
+            response = chat_result.chat_history[i]
+            if response['role'] == 'assistant':
+                index_of_next_message = i + 1
+                break
 
-    feedback_result = human_agent.initiate_chat(
-        recipient=feedback_agent,
-        clear_history=False,
-        message=f"Please provide me with feedback on how I can improve my courtroom performance, legal arguments, and strategy. I was roleplaying as the {session['agents']['human_proxy'].name}. Here is the entire conversation history: {convo_string}",
-    )
+        return {"response": parse_agent_names(chat_result.chat_history)[index_of_next_message:]}
 
-    session['feedback_agent'] = feedback_agent
-    session['human_agent'] = human_agent
-    session['feedback_history'] = feedback_result.chat_history
+    else:
+        # Initialize feedback agents
+        group_chat_manager = session["group_chat_manager"]
+        conversation_history = session["conversation_history"]
+        convo_string = group_chat_manager.messages_to_string(conversation_history)
 
-    parsed_feedback = parse_agent_names(feedback_result.chat_history[1:])
-    return {"response": parsed_feedback}
+        feedback_agent = ConversableAgent(
+            name="feedback_agent", 
+            system_message=f"""
+            You are a legal feedback assistant for a mock trial simulation.
+            Cite specific examples from the user's performance and provide constructive feedback on their courtroom performance, legal arguments, and trial strategy.
+            """,
+            llm_config=session["group_chat_manager"].llm_config,
+        )
 
-@app.post("/feedback/continue")
-async def continue_feedback(request: ContinueConversationRequest):
-    session = sessions.get(request.session_id)
-    if not session:
-        return JSONResponse(content={"error": "Session not found."}, status_code=404)
+        human_agent = ConversableAgent(
+            "human_agent",
+            llm_config=False,
+            human_input_mode="NEVER",
+            is_termination_msg=lambda message: True,
+        )
 
-    feedback_agent = session['feedback_agent']
-    human_agent = session['human_agent']
+        feedback_result = human_agent.initiate_chat(
+            recipient=feedback_agent,
+            clear_history=False,
+            message=f"""{request.user_message} Here is the entire conversation history: {convo_string}""",
+        )
+
+        # Store feedback agents and history
+        session['feedback_agent'] = feedback_agent
+        session['human_agent'] = human_agent
+        session['feedback_history'] = feedback_result.chat_history
+
+        parsed_feedback = parse_agent_names(feedback_result.chat_history[1:])
+        return {"response": parsed_feedback}
+
+
+# @app.post("/feedback/initialize")
+# async def provide_feedback(request: ContinueConversationRequest):
+#     session = sessions.get(request.session_id)
+#     if not session:
+#         return JSONResponse(content={"error": "Session not found."}, status_code=404)
+
+#     group_chat_manager = session["group_chat_manager"]
+#     conversation_history = session["conversation_history"]
+
+#     convo_string = group_chat_manager.messages_to_string(conversation_history)
+
+#     # Initialize Feedback Agent
+#     feedback_agent = ConversableAgent(
+#         name="feedback_agent", 
+#         system_message=f"""
+#         You are a legal feedback assistant for a mock trial simulation.
+#         Cite specific examples from the user's performance and provide constructive feedback on their courtroom performance, legal arguments, and trial strategy.
+#         """,
+#         llm_config=session["group_chat_manager"].llm_config,
+#     )
+
+#     human_agent = ConversableAgent(
+#         "human_agent",
+#         llm_config=False,
+#         human_input_mode="NEVER",
+#         is_termination_msg=lambda message: True,
+#     )
+
+#     feedback_result = human_agent.initiate_chat(
+#         recipient=feedback_agent,
+#         clear_history=False,
+#         message=f"Please provide me with feedback on how I can improve my courtroom performance, legal arguments, and strategy. I was roleplaying as the {session['agents']['human_proxy'].name}. Here is the entire conversation history: {convo_string}",
+#     )
+
+#     session['feedback_agent'] = feedback_agent
+#     session['human_agent'] = human_agent
+#     session['feedback_history'] = feedback_result.chat_history
+
+#     parsed_feedback = parse_agent_names(feedback_result.chat_history[1:])
+#     return {"response": parsed_feedback}
+
+# @app.post("/feedback/continue")
+# async def continue_feedback(request: ContinueConversationRequest):
+#     session = sessions.get(request.session_id)
+#     if not session:
+#         return JSONResponse(content={"error": "Session not found."}, status_code=404)
+
+#     feedback_agent = session['feedback_agent']
+#     human_agent = session['human_agent']
     
-    chat_result = human_agent.initiate_chat(
-        recipient=feedback_agent,
-        message = request.user_message,
-        clear_history=False,
-        chat_messages=session['feedback_history']
-    )
+#     chat_result = human_agent.initiate_chat(
+#         recipient=feedback_agent,
+#         message = request.user_message,
+#         clear_history=False,
+#         chat_messages=session['feedback_history']
+#     )
 
-    session['feedback_history'].extend(chat_result.chat_history)
+#     session['feedback_history'].extend(chat_result.chat_history)
 
-    # parse response for most recent message
-    index_of_next_message = 0
-    for i in range(len(chat_result.chat_history) - 1, -1, -1):
-        response = chat_result.chat_history[i]
-        if response['role'] == 'assistant':
-            index_of_next_message = i + 1
-            break
+#     # parse response for most recent message
+#     index_of_next_message = 0
+#     for i in range(len(chat_result.chat_history) - 1, -1, -1):
+#         response = chat_result.chat_history[i]
+#         if response['role'] == 'assistant':
+#             index_of_next_message = i + 1
+#             break
 
-    return {"response": parse_agent_names(chat_result.chat_history)[index_of_next_message:]}
+#     return {"response": parse_agent_names(chat_result.chat_history)[index_of_next_message:]}
 
