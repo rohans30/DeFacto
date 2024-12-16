@@ -27,10 +27,15 @@ class ContinueConversationRequest(BaseModel):
     session_id: str
     user_message: str
 
-@app.post("/simulation/initailize")
+@app.post("/simulation/initialize")
 async def initialize_conversation(pdf: UploadFile = File(...), role: str = Form(...)):
     if role not in ["DA", "PA"]:
         return JSONResponse(content={"error": "Invalid role. Use 'DA' or 'PA'."}, status_code=400)
+    
+    if role == "DA":
+        human_proxy_role = "defense attorney"
+    else:
+        human_proxy_role = "prosecuting attorney"
 
     # Extract text from the uploaded PDF
     pdf_text = extract_text_from_pdf(pdf.file)
@@ -71,7 +76,7 @@ async def initialize_conversation(pdf: UploadFile = File(...), role: str = Form(
     }
 
     initial_message = f"""
-    I will be roleplaying as the {role} in this mock trial. We will begin with the direct examination, where the defendant is already on the stand, and I, as the {role}, will be starting the questioning. However, this simulation will cover the entire court proceeding, including cross-examinations, objections, and any other trial phases.
+    I will be roleplaying as the {human_proxy_role} in this mock trial. We will begin with the direct examination, where the defendant is already on the stand, and I, as the {human_proxy_role}, will be starting the questioning. However, this simulation will cover the entire court proceeding, including cross-examinations, objections, and any other trial phases.
 
     The prosecuting attorney should only speak after the judge has directly given them the floor, and the defense attorney should only speak after the prosecuting attorney has finished their questioning. The witnesses should only speak when directly addressed by the attorneys.
 
@@ -89,6 +94,9 @@ async def initialize_conversation(pdf: UploadFile = File(...), role: str = Form(
         message=initial_message,
         summary_method="reflection_with_llm",
     )
+
+    session = sessions[session_id]
+    session["conversation_history"] = chat_result.chat_history
 
     parsed_history = parse_agent_names(chat_result.chat_history[1:])
 
@@ -108,6 +116,9 @@ async def continue_conversation(request: ContinueConversationRequest):
         message=request.user_message,
         clear_history=False,
     )
+    
+    session["conversation_history"].extend(chat_result.chat_history)
+
 
     # parse response for most recent message
     index_of_next_message = 0
@@ -139,7 +150,7 @@ async def initialize_analysis(pdf: UploadFile = File(...)):
     analysis_agent = ConversableAgent(
         name="legal_analysis_agent", 
         system_message=f"""
-        You are LegalAnalysisAgent, an AI expert in analyzing legal court proceedings. This is the court proceeding you will be analyzing: {pdf_text} Your primary role is to explain the reasoning behind the behavior, questioning style, and responses of participants in a court transcript, including attorneys, judges, witnesses, and other legal professionals. You should provide insights into the legal strategies, arguments, and tactics used by the participants. You can also provide general legal knowledge and context to help the user understand the legal proceedings better. Your goal is to help the user gain a deeper understanding of the legal aspects of the court transcript. You can also answer questions related to legal concepts, procedures, and strategies. You have access to a wide range of legal knowledge and can provide detailed explanations on legal topics. You should provide accurate, informative, and insightful responses to the user's questions.
+        You are LegalAnalysisAgent, an AI expert in analyzing legal court proceedings. This is the court proceeding you will be analyzing: {pdf_text} Your primary role is to explain the reasoning behind the behavior, questioning style, and responses of participants in a court transcript, including attorneys, judges, witnesses, and other legal professionals. You should provide insights into the legal strategies, arguments, and tactics used by the participants. You can also provide general legal knowledge and context to help the user understand the legal proceedings better. Your goal is to help the user gain a deeper understanding of the legal aspects of the court transcript. You can also answer questions related to legal concepts, procedures, and strategies. You have access to a wide range of legal knowledge and can provide detailed explanations on legal topics. You should provide accurate, informative, and insightful responses to the user's questions. Please reply in a paragraph format.
         """,
         llm_config=llm_config, 
     )
@@ -192,3 +203,77 @@ async def continue_conversation(request: ContinueConversationRequest):
     #         index_of_next_message = i + 1
     #         break
     return {"response": parse_agent_names(chat_result.chat_history)[1:]}
+
+
+
+### Feedback APIs
+
+@app.post("/feedback/initialize")
+async def provide_feedback(request: ContinueConversationRequest):
+    session = sessions.get(request.session_id)
+    if not session:
+        return JSONResponse(content={"error": "Session not found."}, status_code=404)
+
+    group_chat_manager = session["group_chat_manager"]
+    conversation_history = session["conversation_history"]
+
+    convo_string = group_chat_manager.messages_to_string(conversation_history)
+
+    # Initialize Feedback Agent
+    feedback_agent = ConversableAgent(
+        name="feedback_agent", 
+        system_message=f"""
+        You are a legal feedback assistant for a mock trial simulation.
+        Cite specific examples from the user's performance and provide constructive feedback on their courtroom performance, legal arguments, and trial strategy.
+        """,
+        llm_config=session["group_chat_manager"].llm_config,
+    )
+
+    human_agent = ConversableAgent(
+        "human_agent",
+        llm_config=False,
+        human_input_mode="NEVER",
+        is_termination_msg=lambda message: True,
+    )
+
+    feedback_result = human_agent.initiate_chat(
+        recipient=feedback_agent,
+        clear_history=False,
+        message=f"Please provide me with feedback on how I can improve my courtroom performance, legal arguments, and strategy. I was roleplaying as the {session['agents']['human_proxy'].name}. Here is the entire conversation history: {convo_string}",
+    )
+
+    session['feedback_agent'] = feedback_agent
+    session['human_agent'] = human_agent
+    session['feedback_history'] = feedback_result.chat_history
+
+    parsed_feedback = parse_agent_names(feedback_result.chat_history[1:])
+    return {"response": parsed_feedback}
+
+@app.post("/feedback/continue")
+async def continue_feedback(request: ContinueConversationRequest):
+    session = sessions.get(request.session_id)
+    if not session:
+        return JSONResponse(content={"error": "Session not found."}, status_code=404)
+
+    feedback_agent = session['feedback_agent']
+    human_agent = session['human_agent']
+    
+    chat_result = human_agent.initiate_chat(
+        recipient=feedback_agent,
+        message = request.user_message,
+        clear_history=False,
+        chat_messages=session['feedback_history']
+    )
+
+    session['feedback_history'].extend(chat_result.chat_history)
+
+    # parse response for most recent message
+    index_of_next_message = 0
+    for i in range(len(chat_result.chat_history) - 1, -1, -1):
+        response = chat_result.chat_history[i]
+        if response['role'] == 'assistant':
+            index_of_next_message = i + 1
+            break
+
+    return {"response": parse_agent_names(chat_result.chat_history)[index_of_next_message:]}
+
