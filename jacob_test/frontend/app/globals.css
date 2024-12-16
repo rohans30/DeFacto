@@ -103,6 +103,16 @@ h1 {
   font-weight: 500;
 }
 
+.chat-select {
+  width: 15%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 15px;
+}
 
 .input-text {
   width: 85%;
@@ -161,6 +171,12 @@ h1 {
   background-color: var(--message-user-bg);
   color: #171717;
   margin-left: auto;
+}
+
+.message-feedback-agent {
+  background-color: #9a8c98;
+  color: #ededed;
+  margin-right: auto;
 }
 
 .message strong {

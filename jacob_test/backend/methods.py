@@ -75,6 +75,8 @@ def define_transitions(agents, user_role):
     else:
         disallowed_transitions[agents["defense_attorney"]] = [agents["defense_attorney"], agents["human_proxy"]]
         disallowed_transitions[agents["human_proxy"]] = [agents["defense_attorney"], agents["human_proxy"]]
+    
+    return disallowed_transitions
 
 # Utility to extract text from a PDF file
 def extract_text_from_pdf(file):
@@ -98,6 +100,8 @@ def parse_agent_names(chat_history):
             new_name = "Defendant"
         elif content['name'] == "legal_analysis_agent":
             new_name = "Specter Defacto"
+        elif content['name'] == "feedback_agent":
+            new_name = "Tutor Donny Defacto"
         elif content['name'] == 'assistant':
             continue
 

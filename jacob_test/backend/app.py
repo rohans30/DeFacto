@@ -59,7 +59,6 @@ async def initialize_conversation(pdf: UploadFile = File(...), role: str = Form(
         allowed_or_disallowed_speaker_transitions=disallowed_transitions,
         speaker_transitions_type="disallowed",
         max_round=4,
-        allow_repeat_speaker=False,
     )
 
     group_chat_manager = GroupChatManager(
@@ -117,7 +116,7 @@ async def continue_conversation(request: ContinueConversationRequest):
         clear_history=False,
     )
     
-    session["conversation_history"].extend(chat_result.chat_history)
+    session["conversation_history"] = chat_result.chat_history
 
 
     # parse response for most recent message
@@ -228,7 +227,7 @@ async def handle_feedback(request: ContinueConversationRequest):
         )
 
         # Update feedback history
-        session['feedback_history'].extend(chat_result.chat_history)
+        session['feedback_history'] = chat_result.chat_history
 
         # Find latest response index
         index_of_next_message = 0
@@ -238,13 +237,15 @@ async def handle_feedback(request: ContinueConversationRequest):
                 index_of_next_message = i + 1
                 break
 
-        return {"response": parse_agent_names(chat_result.chat_history)[index_of_next_message:]}
+        return {"response": parse_agent_names(chat_result.chat_history[index_of_next_message:])}
 
     else:
         # Initialize feedback agents
         group_chat_manager = session["group_chat_manager"]
         conversation_history = session["conversation_history"]
+        print(f'conversation history {conversation_history}')
         convo_string = group_chat_manager.messages_to_string(conversation_history)
+        print(f'convo string {convo_string}')
 
         feedback_agent = ConversableAgent(
             name="feedback_agent", 

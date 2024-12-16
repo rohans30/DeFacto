@@ -6,6 +6,7 @@ import Link from 'next/link'; // Import the Link component from next/link
 export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [role, setRole] = useState('DA');
+  const [chatType, setChatType] = useState("simulate");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<{ sender: string; content: string }[]>([]);
   const [userMessage, setUserMessage] = useState('');
@@ -28,7 +29,7 @@ export default function Home() {
     formData.append('role', role);
 
     try {
-      const response = await fetch('http://localhost:8000/simulation/initailize', {
+      const response = await fetch('http://localhost:8000/simulation/initialize', {
         method: 'POST',
         body: formData,
       });
@@ -60,31 +61,71 @@ export default function Home() {
 
     setIsLoading(true);
 
-    try {
-      const response = await fetch('http://localhost:8000/simulation/continue', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId, user_message: userMessage }),
-      });
+    // Depending on the user selection we change what type of API Call is
+    if (chatType == 'simulate') {
+      try {
 
-      const data = await response.json();
+        const response = await fetch('http://localhost:8000/simulation/continue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId, user_message: userMessage }),
+        });
 
-      const newMessages = data.response.map((msg: { name: string; content: string }) => ({
-        sender: msg.name,
-        content: msg.content,
-      }));
+        const data = await response.json();
 
-      setMessages((prev) => [
-        ...prev,
-        { sender: 'You', content: userMessage },
-        ...newMessages,
-      ]);
-      setUserMessage('');
-    } catch (error) {
-      console.error('Error sending message:', error);
-      alert('An error occurred while sending the message.');
-    } finally {
-      setIsLoading(false);
+        const newMessages = data.response.map((msg: { name: string; content: string }) => ({
+          sender: msg.name,
+          content: msg.content,
+        }));
+
+        setMessages((prev) => [
+          ...prev,
+          { sender: 'You', content: userMessage },
+          ...newMessages,
+        ]);
+        setUserMessage('');
+
+
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('An error occurred while sending the message.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    else if (chatType == 'feedback') {
+      try {
+
+        const response = await fetch('http://localhost:8000/simulation/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: sessionId, user_message: userMessage }),
+        });
+
+        const data = await response.json();
+
+        const newMessages = data.response.map((msg: { name: string; content: string }) => ({
+          sender: msg.name,
+          content: msg.content,
+        }));
+
+        setMessages((prev) => [
+          ...prev,
+          { sender: 'You', content: userMessage },
+          ...newMessages,
+        ]);
+        setUserMessage('');
+
+      } catch (error) {
+        console.error('Error sending message:', error);
+        alert('An error occurred while sending the message.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    else {
+      alert('An error occurred while sending the message. Chat Type was not selected');
     }
   };
 
@@ -124,7 +165,15 @@ export default function Home() {
         <div className="chat-container">
           <div className="messages-container">
             {messages.map((msg, index) => (
-              <div key={index} className={`message ${msg.sender === 'You' ? 'message-user' : 'message-agent'}`}>
+              <div key={index} 
+                className={`message ${
+                  msg.sender === 'You' 
+                    ? 'message-user' 
+                    : msg.sender === 'Tutor Donny Defacto' 
+                      ? 'message-feedback-agent' 
+                      : 'message-agent'
+                }`}
+              >
                 <strong>{msg.sender}:</strong> {msg.content}
               </div>
             ))}
@@ -147,6 +196,17 @@ export default function Home() {
               placeholder="Type a message..."
               className="input-text"
             />
+
+            {/* Dropdown Menu */}
+            <select 
+              value={chatType} 
+              onChange={(e) => setChatType(e.target.value)} 
+              className="chat-select"
+            >
+              <option value="simulate">Simulate</option>
+              <option value="feedback">Feedback</option>
+            </select>
+
             <button onClick={sendMessage} className="send-btn" disabled={isLoading}>
               Send
             </button>
